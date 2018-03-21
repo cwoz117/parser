@@ -1,0 +1,9 @@
+%{
+
+%}
+
+%token #ALL THE TOKENS
+
+%%
+
+%%
