@@ -1,41 +1,35 @@
 #ifndef AST_H
 
 #include <stdbool.h>
-extern int yylex();
-extern int yyerror(char *c);
-extern int yyleng;
-extern char *yytext();
 
+extern int yylineno;
+void yyerror(char *s);
 
-/* Node Types
-	1 - Program
-	2 - declaration
-	3 - var specs
-	4 - var spec
-   */
-struct ast{ // p, d, i
-	int type;
-	struct ast *left;
-	struct ast *right;
+union Data {
+	int ival;
+	double rval;
+	bool bval;
+	char cval;
+	char * id;
 };
 
-struct var { // v
-	int type;
-	int var_type;
+struct ast{ 
+	int nodetype; //0
+	struct ast *l;
+	struct ast *r;
+};
+
+struct declaration {//1
+	int nodetype;
+	int declaredtype; // Symbol Table inc
 	char *name;
-	int *array; //Dynamic array size.
-};
-
-struct id {
-	int type;
-	char *ident;
 	struct ast *array_dimensions;
 };
 
-struct ast *new_ast(int type, struct ast *l, struct ast *r);
-struct ast *new_var(int type, struct ast *var_specs, int var_type);
-struct ast *new_id(int type, char *ident, struct ast *array_dimension);
+struct ast *new_ast(struct ast *l, struct ast *r);
+struct ast *new_declaration(struct ast *declaration, struct ast *declarations);
 void free_ast(struct ast *a);
+void print_ast(struct ast *a);
 #endif
 
 

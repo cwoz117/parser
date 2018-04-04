@@ -3,24 +3,105 @@
 #include <stdlib.h>
 #include "ast.h"
 
-struct ast *
-new_ast(int type, struct ast *l, struct ast *r){
-	struct ast *a = malloc(sizeof(struct ast));
-	if (!a){
-		yyerror("out of space\n");
+void *mal_node(int size, int nodetype){
+	void * a = malloc(size);
+	if(!a){
+		yyerror("Ran out of space\n");
 		exit(1);
 	}
-	a->type = type;
+	(struct ast a)->nodetype = nodetype;
+}
+
+// GENERIC AST
+struct ast *new_ast(struct ast *l, struct ast *r){
+	struct ast *a = mal_node(sizeof(struct ast));
+	a->type = 0;
 	a->left = l;
 	a->right = r;
 	return a;
 }
 
-void
-free_ast(struct ast *a){
-	if (!a->left)
-		free_ast(a->left);
-	if (!a->right)
-		free_ast(a->right);
-	free(a);
+// DECLARATION
+struct ast * get_declarations(struct ast *a){
+	int type = a->l; //WIZARDRY MUST BE DONE HERE
+	struct ast *in = a->r;
+
+	struct ast *decls = mal_node(sizeof(struct ast), 0);
+	decls->l = NULL;
+	decls->r = NULL;
+	struct ast *out = decls;
+
+	//Sift through var_specs for the good stuff
+	while(in){
+		out->l = mal_node(sizeof(struct declaration), 1);
+		out->l->declaredtype = a->l;
+		out->l->name = in->l->l;
+		out->l->array_dimensions = in->l->r;	
+		
+		in = in->r;
+		if(in){
+			out->r = mal_node(sizeof(strict ast), 0);
+			out = out->r;
+			out->r = NULL;
+			out->l = NULL;
+		}
+	}
+	return decls;
 }
+
+struct ast *new_declaration(struct ast *declaration, struct ast *declarations){
+	struct ast *d = get_declarations(struct ast *declaration);
+	
+	struct ast *ds = NULL;
+	if(declarations)
+		ds = new_declaration(declarations->l, declarations->r);
+
+	struct ast *tmp = d;
+	while(d->r)
+		tmp = d->r;
+	d->r = ds;
+	
+	return d;
+}
+
+
+// FREE AST
+void free_ast(struct ast *a){
+	if(a){
+		switch(a->nodetype){
+			case 0:
+				free_ast(a->l);
+				free_ast(a->r);
+				free(a);
+				break;
+			case 1;
+				free_ast(((struct declaration *)a)->declarations);
+				free_ast(a);
+				break;
+		}
+	}
+}
+
+// PRINT THE AST
+void print_ast(struct ast *a){
+	if(a){
+		printf("TB Fuckin' D\n");
+	}
+}
+
+
+/*
+
+
+
+
+fun_declaration:
+	FUN ID param_list COLON type CLPAR fun_block CRPAR {} ;
+
+fun_block:
+	declarations fun_body {};
+
+param_list:
+	LPAR parameters RPAR {};
+
+*/

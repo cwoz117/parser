@@ -12,7 +12,6 @@
 	char *sval;
 	float rval;
 	bool bval;
-	NodeType typeval;
 }
 
 %type <n> block program_body declarations
@@ -39,10 +38,10 @@ prog:
 	block;   
 
 block:
-	declarations program_body { $$ = new_ast('a', $1, $2);};
+	declarations program_body { $$ = new_ast($1, $2);};
 
 declarations:
-	declaration SEMICOLON declarations {$$ = new_ast('b', $1, $3);}
+	declaration SEMICOLON declarations {$$ = new_declaration($1, $3);}
 	| {$$ = NULL;};
 
 declaration:
@@ -51,20 +50,20 @@ declaration:
 	| data_declaration;
 
 var_declaration:
-	VAR var_specs COLON type { $$ = new_var('c', $2, $4); };
+	VAR var_specs COLON type { $$ = new_ast($4, $2); };
 	
 var_specs:
-	var_spec more_var_specs { $$ = new_ast('d', $1, $2);};
+	var_spec more_var_specs { $$ = new_ast($1, $2);};
 
 more_var_specs:
-	COMMA var_spec more_var_specs { $$ = new_ast('e', $2, $3);}
+	COMMA var_spec more_var_specs { $$ = new_ast($2, $3);}
 	| {$$ = NULL;};
 
 var_spec:
-	ID array_dimensions { $$ = new_id('f', $1, $2); };
+	ID array_dimensions { $$ = new_ast($1, $2); };
 
 array_dimensions:
-	SLPAR expr SRPAR array_dimensions { $$ = new_ast('g', $2, $4);}
+	SLPAR expr SRPAR array_dimensions { $$ = new_ast($2, $4);}
 	|{ $$ = NULL;};
 
 type:
@@ -75,39 +74,13 @@ type:
 	| ID 	{ $$ = ID; };
 
 
-
-fun_declaration:
-	FUN ID param_list COLON type CLPAR fun_block CRPAR {} ;
-
-fun_block:
-	declarations fun_body {};
-
-param_list:
-	LPAR parameters RPAR {};
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 %%
 
-void 
-yyerror(char *a){
+void yyerror(char *a){
 	fprintf(stderr, "%d: error: ", yylineno);
 	fprintf(stderr, s);
 }
 
-int
-main(){
+int main(){
 	return yyparse();
 }
