@@ -19,21 +19,24 @@ struct ast{
 	struct ast *r;
 };
 
-struct declaration {//1
+struct ast_variable {//1
 	int nodetype;
 	int declaredtype; // Symbol Table inc
 	char *name;
 	struct ast *array_dimensions;
 };
 
+struct type_container{//2  TODO DELETE AND STUFF... WHEREVER U SEE A CASE
+	int nodetype;
+	int type;
+}
+struct data_container{//3 TODO DELETE AND STUFF... WHEREVER U SEE A CASE
+	int nodetype;
+	union Data;
+}
 struct ast *new_ast(struct ast *l, struct ast *r);
-struct ast *new_declaration(struct ast *declaration, struct ast *declarations);
+struct ast *new_declarations(struct ast *declaration, struct ast *declarations);
+struct ast *new_type(int type);
 void free_ast(struct ast *a);
 void print_ast(struct ast *a);
 #endif
-
-
-
-
-
-// var x, y[4]: int 	-->	 	(x, [2][3], int) -> (y, [4], int) -> NULL

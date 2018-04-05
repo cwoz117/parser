@@ -22,18 +22,20 @@ struct ast *new_ast(struct ast *l, struct ast *r){
 }
 
 // DECLARATION
-struct ast * get_declarations(struct ast *a){
-	int type = a->l; //WIZARDRY MUST BE DONE HERE
-	struct ast *in = a->r;
+struct ast * new_type(int type){
+	struct type_container *t = mal_node(sizeof(struct type_container), 2);
+	t->type = t;
+	return t;
+}
 
-	struct ast *decls = mal_node(sizeof(struct ast), 0);
-	decls->l = NULL;
+struct ast * get_declarations(struct ast *a){
+	int type = (struct type_container *(a->l))->type;
 	decls->r = NULL;
 	struct ast *out = decls;
 
 	//Sift through var_specs for the good stuff
 	while(in){
-		out->l = mal_node(sizeof(struct declaration), 1);
+		out->l = mal_node(sizeof(struct ast_variable), 1);
 		out->l->declaredtype = a->l;
 		out->l->name = in->l->l;
 		out->l->array_dimensions = in->l->r;	
@@ -49,7 +51,7 @@ struct ast * get_declarations(struct ast *a){
 	return decls;
 }
 
-struct ast *new_declaration(struct ast *declaration, struct ast *declarations){
+struct ast *new_declarations(struct ast *declaration, struct ast *declarations){
 	struct ast *d = get_declarations(struct ast *declaration);
 	
 	struct ast *ds = NULL;
@@ -75,7 +77,7 @@ void free_ast(struct ast *a){
 				free(a);
 				break;
 			case 1;
-				free_ast(((struct declaration *)a)->declarations);
+				free_ast(((struct ast_variable *)a)->declarations);
 				free_ast(a);
 				break;
 		}

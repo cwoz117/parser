@@ -10,8 +10,9 @@ libsymbol = libsymbol_table.a
 
 
 parse: 
-	bison -d gramar.y
-	flex grammar.lex
+	bison -d grammar.y
+	flex grammar.l grammar.tab.h
+	$(cc) -o parse grammar.tab.c lex.yy.c ast.h -lfl
 
 tokenize: lex.yy.c
 	$(cc) -std=$(std) $(flags) lex.yy.c -o tokenize
@@ -31,3 +32,4 @@ test_symbol_table: $(symbol).h $(symbol).c $(symbol)_test.c
 
 clean: 
 	rm -f lex.yy.c a.out *.gch *.o $(libsymbol) symbol_test
+	rm -f grammar.tab.c lex.yy.c grammar.tab.h parse

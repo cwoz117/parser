@@ -4,7 +4,7 @@
 %option yylineno
 
 %{
-
+	#include "grammar.tab.h"
 	int linecount = 1;
 	int charcount = 1;
 	int multicomment(void);
