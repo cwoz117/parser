@@ -10,7 +10,20 @@ void *mal_node(int size, int nodetype){
 		exit(1);
 	}
 	(struct ast a)->nodetype = nodetype;
+	return a;
 }
+
+struct ast * new_type(int type){
+	struct type_container *t = mal_node(sizeof(struct type_container), 2);
+	t->type = t;
+	return t;
+}
+
+struct ast * new_id(char *id){
+	struct id_container *a = mal_node(sizeof(struct id_container), 3);
+	a->d = d;
+	return (struct ast *) a;
+};
 
 // GENERIC AST
 struct ast *new_ast(struct ast *l, struct ast *r){
@@ -22,11 +35,6 @@ struct ast *new_ast(struct ast *l, struct ast *r){
 }
 
 // DECLARATION
-struct ast * new_type(int type){
-	struct type_container *t = mal_node(sizeof(struct type_container), 2);
-	t->type = t;
-	return t;
-}
 
 struct ast * get_declarations(struct ast *a){
 	int type = (struct type_container *(a->l))->type;

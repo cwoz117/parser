@@ -24,67 +24,67 @@ identifier		({alpha}({alpha}|{digit})*)
 "\n"		{ charcount = 1; linecount++; }
 [ \t|" "]	{ charcount++;		}
 
-"+"			{ return ADD; 		}
-"-"			{ return SUB; 		}
-"*"			{ return MUL; 		}
-"/"			{ return DIV; 		}
+"+"		{ return ADD; 		}
+"-"		{ return SUB; 		}
+"*"		{ return MUL; 		}
+"/"		{ return DIV; 		}
 "=>"		{ return ARROW; 	}
 "&&"		{ return AND; 		}
 "||"		{ return OR; 		}
 "not"		{ return NOT; 		}
 
-"="			{ return EQUAL; 	}
-"<"			{ return LT; 		}
-">"			{ return GT; 		}
+"="		{ return EQUAL; 	}
+"<"		{ return LT; 		}
+">"		{ return GT; 		}
 "=<"		{ return LE; 		}
 ">="		{ return GE; 		}
 
 ":="		{ return ASSIGN; 	}
-"("			{ return LPAR; 	}
-")"			{ return RPAR; 	}
-"{"			{ return CLPAR; 	}
-"}"			{ return CRPAR; 	}
-"["			{ return SLPAR; 	}
-"]"			{ return SRPAR; 	}
-'|'			{ return SLASH; 	}
+"("		{ return LPAR; 		}
+")"		{ return RPAR; 		}
+"{"		{ return CLPAR; 	}
+"}"		{ return CRPAR; 	}
+"["		{ return SLPAR; 	}
+"]"		{ return SRPAR; 	}
+'|'		{ return SLASH; 	}
 
-":"			{ return COLON; 	}
-";"			{ return SEMICOLON;}
-","			{ return COMMA; 	}
+":"		{ return COLON; 	}
+";"		{ return SEMICOLON;	}
+","		{ return COMMA; 	}
 
 "if"		{ return IF; 		}
-"then"		{ return THEN; 	}
+"then"		{ return THEN; 		}
 "while"		{ return WHILE; 	}
 "do"		{ return DO; 		}
-"read"		{ return READ; 	}
-"else"		{ return ELSE; 	}
-"begin"		{ return BEGIN; 	}
+"read"		{ return READ; 		}
+"else"		{ return ELSE; 		}
+"begin"		{ return BEGI; 		}
 "end"		{ return END; 		}
-"case"		{ return CASE; 	}
+"case"		{ return CASE; 		}
 "of"		{ return OF; 		}
 "print"		{ return PRINT; 	}
 "int"		{ return INT; 		}
-"bool"		{ return BOOL; 	}
-"char"		{ return CHAR; 	}
-"real"		{ return REAL; 	}
+"bool"		{ return BOOL; 		}
+"char"		{ return CHAR; 		}
+"real"		{ return REAL; 		}
 "var"		{ return VAR; 		}
-"data"		{ return DATA; 	}
-"size"		{ return SIZE; 	}
+"data"		{ return DATA; 		}
+"size"		{ return SIZE; 		}
 "float"		{ return FLOAT; 	}
 "floor"		{ return FLOOR; 	}
-"ceil"		{ return CEIL; 	}
+"ceil"		{ return CEIL; 		}
 "fun"		{ return FUN; 		}
 "return"	{ return RETURN; 	}
 
-"false"					{ return BVAL; }
-"true"					{ return BVAL; }
-"#"[{digit}{alpha}]*	{ return CID; 	}
-{identifier}			{ return ID; 	}
-{digit}+"."{digit}+		{ return RVAL; }
-{digit}+				{ return IVAL; }
-{quote}{char}{quote}	{ return CVAL; }
-{quote}'\n'{quote}		{ return CVAL; }
-{quote}'\t'{quote}		{ return CVAL; }
+"false"			{ return BVAL;  }
+"true"			{ return BVAL;  }
+"#"[{digit}{alpha}]*	{ return CID;   }
+{identifier}		{ return ID;    }
+{digit}+"."{digit}+	{ return RVAL;  }
+{digit}+		{ return IVAL;  }
+{quote}{char}{quote}	{ return CVAL;  }
+{quote}'\n'{quote}	{ return CVAL;  }
+{quote}'\t'{quote}	{ return CVAL;  }
 
 %%
 

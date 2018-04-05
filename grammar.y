@@ -2,9 +2,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "ast.h"
+//#include "ast.h"
 
 %}
+
+%code requires{
+	#include <stdbool.h>
+	#include "ast.h"
+}
 
 %union {
 	struct ast *n;
@@ -33,7 +38,7 @@
 
 %token <sval> ADD SUB MUL DIV ARROW AND OR NOT EQUAL LT GT LE GE ASSIGN
 %token <sval> LPAR RPAR CLPAR CRPAR SLPAR SRPAR SLASH COLON SEMICOLON COMMA
-%token <sval> IF THEN WHILE DO READ ELSE BEGIN END CASE OF PRINT FLOOR CEIL
+%token <sval> IF THEN WHILE DO READ ELSE BEGI END CASE OF PRINT FLOOR CEIL
 %token <sval> INT BOOL CHAR REAL VAR DATA SIZE FLOAT FUN RETURN CID ID
 %token <rval> RVAL
 %token <ival> IVAL
@@ -70,7 +75,7 @@ more_var_specs:
 	COMMA var_spec more_var_specs { $$ = new_ast($2, $3);}
 	| {$$ = NULL;};
 var_spec:
-	ID array_dimensions { $$ = new_ast($1, $2); };
+	ID array_dimensions { $$ = new_ast(new_id($1), $2); };
 array_dimensions:
 	SLPAR expr SRPAR array_dimensions { $$ = new_ast($2, $4);}
 	|{ $$ = NULL;};
@@ -122,10 +127,10 @@ more_type:
 								/* Statements*/
 
 program_body:
-	BEGIN prog_stmts END {}
+	BEGI prog_stmts END {}
 	| prog_stmts {};
 fun_body:
-	BEGIN prog_stmts RETURN expr SEMICOLON END {}
+	BEGI prog_stmts RETURN expr SEMICOLON END {}
 	|prog_stmts RETURN expr SEMICOLON {};
 prog_stmts:
 	prog_stmt SEMICOLON prog_stmts {}
@@ -217,7 +222,7 @@ more_arguments:
 
 void yyerror(char *a){
 	fprintf(stderr, "%d: error: ", yylineno);
-	fprintf(stderr, s);
+	fprintf(stderr, a);
 }
 
 int main(){

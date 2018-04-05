@@ -12,7 +12,7 @@ libsymbol = libsymbol_table.a
 parse: 
 	bison -d grammar.y
 	flex grammar.l grammar.tab.h
-	$(cc) -o parse grammar.tab.c lex.yy.c ast.h -lfl
+	$(cc) -o parse grammar.tab.c lex.yy.c ast.h
 
 tokenize: lex.yy.c
 	$(cc) -std=$(std) $(flags) lex.yy.c -o tokenize
