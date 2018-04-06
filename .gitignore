@@ -1,4 +1,8 @@
 *.swp
+*.tab.c
+*.tab.h
+parse
+lex.yy.c
 *.gch
 *.a
 *.o
