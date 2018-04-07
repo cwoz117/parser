@@ -13,7 +13,7 @@ typedef enum {
 	
 	ntCONS_DECLARATIONS, ntTYPE_LIST,
 
-	ntFun_BODY, ntPROG_STMTS, ntIF, ntWH, ntRE, ntAS, ntPR, nrBL, ntCA, ntLOCATION, ntCASE_LIST,
+	ntFUN_BODY, ntPROG_STMTS, ntIF, ntWH, ntRE, ntAS, ntPR, ntBL, ntCA, ntLOCATION, ntCASE_LIST, ntVAR_LIST,
 	
 	
 	astVARIABLE, astFUNCTION_DECLARATION, astBASIC_DECLARATION, astDATA_DECLARATION, astCONS_DECL, astCASE,
@@ -44,14 +44,10 @@ struct ast_data_declaration{
 	char *id;
 	struct ast *constructors;
 };
-struct ast_type_list{
-	Nodetype nodetype;
-	int type;
-};
 struct ast_constructor{
 	Nodetype nodetype;
 	char *cid;
-	struct ast_type_list *types;
+	struct ast *types;
 };
 struct ast_flow{
 	Nodetype nodetype;
@@ -62,7 +58,7 @@ struct ast_flow{
 struct ast_id{
 	Nodetype nodetype;
 	char *id;
-	struct ast *array
+	struct ast *array;
 };
 struct ast_type_list{
 	Nodetype nodetype;
@@ -83,15 +79,16 @@ struct ast *new_variable(int type, struct ast *var_spec);
 struct ast *new_variable_declaration(int type, struct ast *var_specs);
 
 struct ast *new_function(char *id, struct ast *param_list, int type, struct ast *fun_block);
-struct ast *basic_variable(char *id, struct ast *a, int type);
+struct ast *new_basic_declaration(char *id, struct ast *a, int type);
 
 struct ast *new_data_declaration(char *id, struct ast *constructors);
 struct ast *new_type_list(int type, struct ast *more_types);
 struct ast *new_cons_decl(char *cid, struct ast *type_list);
 
-struct ast *new_flow(int nodetype, struct ast *expr, struct ast *then, struct ast *els);
+struct ast *new_flow(Nodetype nodetype, struct ast *expr, struct ast *then, struct ast *els);
 struct ast *new_location(char *id, struct ast *array);
 struct ast *new_case(char *cid, struct ast *vars, struct ast *stmt);
+struct ast *new_var_list(char *id, struct ast *more_vars);
 
 void free_ast(struct ast *a);
 void print_ast(struct ast *a);
@@ -166,7 +163,7 @@ more_var_specs:
 	COMMA var_spec more_var_specs { $$ = new_ast(ntVAR_SPECS, $2, $3);}
 	| {$$ = NULL;};
 var_spec:
-	ID array_dimensions { $$ = new_ast(ntVAR_SPEC, $1, $2); };
+	ID array_dimensions { $$ = new_var_spec($1, $2); };
 array_dimensions:
 	SLPAR expr SRPAR array_dimensions { $$ = new_ast(ntARRAY_DIMENSIONS, $2, $4);}
 	|{ $$ = NULL;};
@@ -212,7 +209,7 @@ cons_decl:
 type_list:
 	type more_type { $$ = new_type_list($1,$2); };
 more_type:
-	MUL type more_type { $$ = new_type_list($1, $2);}
+	MUL type more_type { $$ = new_type_list($2, $3);}
 	| {$$ = NULL;};
 
 								/* Statements*/
@@ -261,7 +258,7 @@ bint_term:
 	bint_term AND bint_factor {}
 	| bint_factor;
 bint_factor:
-	NOT bint_factor {} 					//TODO WTF IS THIS
+	NOT bint_factor {} 
 	| int_expr compare_op int_expr {}
 	| int_expr {};
 compare_op:
@@ -341,14 +338,14 @@ struct ast *new_var_spec(char *id, struct ast *array_dimensions){
 struct ast *new_variable(int type, struct ast *var_spec){
 	struct ast_variable *v = mal_node(sizeof(struct ast_variable), astVARIABLE);
 	v->declaredtype = type;
-	v->name = ((struct id_container *)(var_spec->l))->id;
+	v->name = ((struct ast_id *)(var_spec->l))->id;
 	v->dimensions = var_spec->r;
 	return (struct ast *)v;
 }
 struct ast *new_variable_declaration(int type, struct ast *var_specs){
 	if(!var_specs)
 		return NULL;
-	struct ast *variables = mal_node(sizeof(struct ast), ntDECLARATION);
+	struct ast *variables = mal_node(sizeof(struct ast), ntVAR_DECLARATION);
 	variables->l = new_variable(type, var_specs->l);
 	variables->r = new_variable_declaration(type, var_specs->r);
 	return variables;
@@ -376,7 +373,7 @@ struct ast *new_function(char *id, struct ast *param_list,
 								// DATA TYPES
 
 struct ast *new_data_declaration(char *id, struct ast *constructors){
-	struct ast_data *a = mal_node(sizeof(struct ast_data_declaration), astDATA_DECLARATION);
+	struct ast_data_declaration *a = mal_node(sizeof(struct ast_data_declaration), astDATA_DECLARATION);
 	a->id =id;
 	a->constructors = constructors;
 	return (struct ast *)a;
@@ -384,8 +381,8 @@ struct ast *new_data_declaration(char *id, struct ast *constructors){
 struct ast *new_type_list(int type, struct ast *more_types){
 	struct ast_type_list *a = mal_node(sizeof(struct ast_type_list), ntTYPE_LIST);
 	a->type = type;
-	a->more_types = more_types;
-	return a;
+	a->more_type = more_types;
+	return (struct ast *)a;
 };
 struct ast * new_cons_decl(char *cid, struct ast *type_list){
 	struct ast_constructor *a = mal_node(sizeof(struct ast_constructor), astCONS_DECL);
@@ -403,8 +400,8 @@ struct ast * new_flow(Nodetype nt, struct ast *expr, struct ast *then, struct as
 	a->r = els;
 	return (struct ast *)a;
 };
-struct ast * new_location(char *id, struct ast *array_dimensions, Nodetype nt){
-	struct ast_id *a = mal_node(sizeof(struct ast_id), astLOCATION);
+struct ast * new_location(char *id, struct ast *array_dimensions){
+	struct ast_id *a = mal_node(sizeof(struct ast_id), ntLOCATION);
 	a->id = id;
 	a->array = array_dimensions;
 	return (struct ast *)a;
