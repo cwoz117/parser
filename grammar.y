@@ -7,73 +7,66 @@ extern int yylineno;
 void yyerror(char *s);
 
 typedef enum {
-	ntBLOCK, ntDECLARATIONS, ntVAR_DECLARATION, ntVAR_SPECS, ntVAR_SPEC, ntARRAY_DIMENSIONS, ntEXPR,
+	nBLOCK, nVAR_DECLARATION, nVAR_SPECS, nVAR_SPEC, nARRAY_DIMENSIONS, nEXPR,
 	
-	ntFUN_DECLARATION, ntFUN_BLOCK, ntPARAMETERS, ntBASIC_ARRAY_DIMENSION,
+	nFUN_DECLARATION, nFUN_BLOCK, nPARAMETERS, nBASIC_ARRAY_DIMENSION,
 	
-	ntCONS_DECLARATIONS, ntTYPE_LIST,
+	nCONS_DECLARATIONS, nTYPE_LIST, nTYPE,
 
-	ntFUN_BODY, ntPROG_STMTS, ntIF, ntWH, ntRE, ntAS, ntPR, ntBL, ntCA, ntLOCATION, ntCASE_LIST, ntVAR_LIST,
-	
-	
-	astVARIABLE, astFUNCTION_DECLARATION, astBASIC_DECLARATION, astDATA_DECLARATION, astCONS_DECL, astCASE,
-	
-	trmID
+	nFUN_BODY, nPROG_STMTS, nIF, nWH, nRE, nAS, nPR, nBL, nCA, nLOCATION, nCASE_LIST, 
 }Nodetype;
 
-struct ast{ 
+struct ast_one{
+	Nodetype nodetype;
+	struct ast *a;
+};
+struct ast_two{ 
 	Nodetype nodetype;
 	struct ast *l;
 	struct ast *r;
 };
-struct ast_variable {
-	Nodetype nodetype;
-	int declaredtype;
-	char *name;
-	struct ast *dimensions;
-};
-struct ast_function {
-	Nodetype nodetype;
-	int declaredtype;
-	char *id;
-	struct ast *params;
-	struct ast *block;
-};
-struct ast_data_declaration{
-	Nodetype nodetype;
-	char *id;
-	struct ast *constructors;
-};
-struct ast_constructor{
-	Nodetype nodetype;
-	char *cid;
-	struct ast *types;
-};
-struct ast_flow{
+struct ast_three{
 	Nodetype nodetype;
 	struct ast *l;
 	struct ast *m;
 	struct ast *r;
 };
+struct ast_four{
+	Nodetype nodetype;
+	struct ast *l;
+	struct ast *m;
+	struct ast *r;
+	struct ast *s;
+};
+
 struct ast_id{
 	Nodetype nodetype;
 	char *id;
 	struct ast *array;
 };
-struct ast_type_list{
+struct ast_ival{
 	Nodetype nodetype;
-	int type;
-	struct ast *more_type;
+	int i;
 };
-struct ast_case{
+struct ast_rval{
 	Nodetype nodetype;
-	char *cid;
-	struct ast *var_list;
-	struct ast *prog_stmt;
+	double d;
+};
+struct ast_bval{
+	Nodetype nodetype;
+	bool b;
+};
+struct ast_cval{
+	Nodetype nodetype;
+	char c;
 };
 
-struct ast *new_ast( Nodetype t, struct ast *l, struct ast *r);
+struct ast *new_one( Nodetype t, struct ast *a);
+struct ast *new_two( Nodetype t, struct ast *l, struct ast *r);
+struct ast *new_three( Nodetype t, struct ast *l, struct ast *m, struct ast *r);
+struct ast *new_four( Nodetype t, struct ast *l, struct ast *m, struct ast *r);
 
+/*
 struct ast *new_var_spec(char *id, struct ast *array_dims);
 struct ast *new_variable(int type, struct ast *var_spec);
 struct ast *new_variable_declaration(int type, struct ast *var_specs);
@@ -89,7 +82,7 @@ struct ast *new_flow(Nodetype nodetype, struct ast *expr, struct ast *then, stru
 struct ast *new_location(char *id, struct ast *array);
 struct ast *new_case(char *cid, struct ast *vars, struct ast *stmt);
 struct ast *new_var_list(char *id, struct ast *more_vars);
-
+ */
 void free_ast(struct ast *a);
 void print_ast(struct ast *a);
 
@@ -107,6 +100,7 @@ struct ast * parse_tree = NULL;
 	float rval;
 	bool bval;
 	char cval;
+	Nodetype nt;
 }
 
 %type <n> block declarations prog declaration var_declaration
@@ -143,73 +137,76 @@ struct ast * parse_tree = NULL;
 prog:
 	block  {parse_tree = $$;};
 block:
-	declarations program_body { $$ = new_ast(ntBLOCK, $1, $2);};
+	declarations program_body { $$ = new_two(nBLOCK, $1, $2);};
 
 
 								/* DECLARATIONS */
 
 declarations:
-	declaration SEMICOLON declarations {$$ = new_ast(ntDECLARATIONS, $1, $3);}
+	declaration SEMICOLON declarations {$$ = new_two(nDECLARATIONS, $1, $3);}
 	| {$$ = NULL;};
 declaration:
 	var_declaration
 	| fun_declaration
 	| data_declaration;
 var_declaration:
-	VAR var_specs COLON type { $$ = new_variable_declaration($4, $2); };
+	VAR var_specs COLON type { $$ = new_two(nVARIABLE, $2, $4); };
 var_specs:
-	var_spec more_var_specs { $$ = new_ast(ntVAR_SPECS, $1, $2);};
+	var_spec more_var_specs { $$ = new_two(nVAR_SPECS, $1, $2);};
 more_var_specs:
-	COMMA var_spec more_var_specs { $$ = new_ast(ntVAR_SPECS, $2, $3);}
+	COMMA var_spec more_var_specs { $$ = new_two(nVAR_SPECS, $2, $3);}
 	| {$$ = NULL;};
 var_spec:
-	ID array_dimensions { $$ = new_var_spec($1, $2); };
+	ID array_dimensions { $$ = new_two(nVAR_SPEC, new_sval($1), $2); };
 array_dimensions:
-	SLPAR expr SRPAR array_dimensions { $$ = new_ast(ntARRAY_DIMENSIONS, $2, $4);}
+	SLPAR expr SRPAR array_dimensions { $$ = new_two(nARRAY_DIMENSIONS, $2, $4);}
 	|{ $$ = NULL;};
 type:
-	INT 	{ $$ = INT; }
-	| REAL 	{ $$ = REAL; }
-	| BOOL 	{ $$ = BOOL; }
-	| CHAR 	{ $$ = CHAR; }
-	| ID 	{ $$ = ID; };
+	INT 	{ $$ = new_ival(nTYPE, INT); }
+	| REAL 	{ $$ = new_rval(nTYPE, REAL); }
+	| BOOL 	{ $$ = new_bval(nTYPE, BOOL); }
+	| CHAR 	{ $$ = new_cval(nTYPE, CHAR); }
+	| ID 	{ $$ = new_sval(nTYPE, ID); };
 
 								/* FUNCTIONS */
 
 fun_declaration:
-	FUN ID param_list COLON type CLPAR fun_block CRPAR { $$ = new_function($2, $3, $5, $7);};
+	FUN ID param_list COLON type CLPAR fun_block CRPAR 
+		{ $$ = new_four(nFUN_DECLARATION, new_sval(nID, $2), $3, new_ival(nTYPE, $5), $7);};
 fun_block:
-	declarations fun_body { $$ = new_ast(ntFUN_BLOCK, $1, $2);};
+	declarations fun_body { $$ = new_two(nFUN_BLOCK, $1, $2);};
 param_list:
 	LPAR parameters RPAR { $$ = $2; };
 parameters:
-	basic_declaration more_parameters {$$ = new_ast(ntPARAMETERS, $1, $2);}
+	basic_declaration more_parameters {$$ = new_two(nPARAMETERS, $1, $2);}
 	| {$$ = NULL;};
 more_parameters:
-	COMMA basic_declaration more_parameters {$$ = new_ast(ntPARAMETERS, $2, $3);}
+	COMMA basic_declaration more_parameters {$$ = new_two(nPARAMETERS, $2, $3);}
 	| {$$ = NULL;};
 basic_declaration:
-	ID basic_array_dimensions COLON type {$$ = new_basic_declaration($1, $2, $4);};
+	ID basic_array_dimensions COLON type 
+		{$$ =new_three(nBASIC_DECLARATION, new_sval(nID, $1), $2, new_ival(nTYPE, $4));};
 basic_array_dimensions:
-	SLPAR SRPAR basic_array_dimensions { $$ = new_ast(ntBASIC_ARRAY_DIMENSION, NULL, $3);}
+	SLPAR SRPAR basic_array_dimensions { $$ = new_one(nBASIC_ARRAY_DIMENSION, $3);}
 	| {$$ = NULL;};
 	
 								/* Datatypes */
 
 data_declaration:
-	DATA ID EQUAL cons_declarations { $$ = new_data_declaration($2, $4);};
+	DATA ID EQUAL cons_declarations 
+		{ $$ = new_two(nDATA_DECLARATION, new_sval(nID, $2), $4);};
 cons_declarations:
-	cons_decl more_cons_decl {$$ = new_ast(ntCONS_DECLARATIONS, $1, $2);};
+	cons_decl more_cons_decl {$$ = new_two(nCONS_DECLARATIONS, $1, $2);};
 more_cons_decl:
-	SLASH cons_decl more_cons_decl { $$ = new_ast(ntCONS_DECLARATIONS, $2, $3);}
+	SLASH cons_decl more_cons_decl { $$ = new_two(nCONS_DECLARATIONS, $2, $3);}
 	| {$$ = NULL;};
 cons_decl:
-	CID OF type_list { $$ = new_cons_decl($1, $3);}
-	| CID { $$ = new_cons_decl($1, NULL);};
+	CID OF type_list { $$ = new_two(nCONS_DECL, new_sval(nCID, $1), $3);}
+	| CID { $$ = new_sval(nCID, $1);};
 type_list:
-	type more_type { $$ = new_type_list($1,$2); };
+	type more_type { $$ = new_two(nTYPE_LIST, $1, $2); };
 more_type:
-	MUL type more_type { $$ = new_type_list($2, $3);}
+	MUL type more_type { $$ = new_two(nTYPE_LIST, $2, $3);}
 	| {$$ = NULL;};
 
 								/* Statements*/
@@ -218,35 +215,35 @@ program_body:
 	BEGI prog_stmts END { $$ = $2; }
 	| prog_stmts;
 fun_body:
-	BEGI prog_stmts RETURN expr SEMICOLON END { $$ = new_ast(ntFUN_BODY, $2, $4);}
-	|prog_stmts RETURN expr SEMICOLON { $$ = new_ast(ntFUN_BODY, $1, $3);};
+	BEGI prog_stmts RETURN expr SEMICOLON END { $$ = new_two(nFUN_BODY, $2, $4);}
+	|prog_stmts RETURN expr SEMICOLON { $$ = new_two(nFUN_BODY, $1, $3);};
 prog_stmts:
-	prog_stmt SEMICOLON prog_stmts { $$ = new_ast(ntPROG_STMTS, $1, $3);}
+	prog_stmt SEMICOLON prog_stmts { $$ = new_two(nPROG_STMTS, $1, $3);}
 	| {$$ = NULL;};
 prog_stmt:
-	IF expr THEN prog_stmt ELSE prog_stmt 	{ $$ = new_flow(ntIF, $2, $4, $6);}
-	| WHILE expr DO prog_stmt 		{ $$ = new_flow(ntWH, $2, $4, NULL);}
-	| READ location 			{ $$ = new_flow(ntRE, $2, NULL, NULL);}
-	| location ASSIGN expr 			{ $$ = new_flow(ntAS, $1, $3, NULL);}
-	| PRINT expr 				{ $$ = new_flow(ntPR, $2, NULL, NULL);}
-	| CLPAR block CRPAR 			{ $$ = new_flow(ntBL, $2, NULL, NULL);}
-	| CASE expr OF CLPAR case_list CRPAR 	{ $$ = new_flow(ntCA, $2, $5, NULL);};
+	IF expr THEN prog_stmt ELSE prog_stmt 	{ $$ = new_three(nIF, $2, $4, $6);}
+	| WHILE expr DO prog_stmt 		{ $$ = new_two(nWH, $2, $4);}
+	| READ location 			{ $$ = new_one(nRE, $2);}
+	| location ASSIGN expr 			{ $$ = new_two(nAS, $1, $3);}
+	| PRINT expr 				{ $$ = new_one(nPR, $2);}
+	| CLPAR block CRPAR 			{ $$ = new_one(nBL, $2);}
+	| CASE expr OF CLPAR case_list CRPAR 	{ $$ = new_two(nCA, $2, $5);};
 location:
-	ID array_dimensions { $$ = new_location($1, $2);};
+	ID array_dimensions { $$ = new_two(nLOCATION, new_sval(nID, $1), $2);};
 case_list:
-	case more_case { $$ = new_ast(ntCASE_LIST, $1, $2);};
+	case more_case { $$ = new_two(nCASE_LIST, $1, $2);};
 more_case:
-	SLASH case more_case {$$ = new_ast(ntCASE_LIST, $2, $3);}
+	SLASH case more_case {$$ = new_two(nCASE_LIST, $2, $3);}
 	| {$$ = NULL;};
 case:
-	CID var_list ARROW prog_stmt { $$ = new_case($1, $2, $4);};
+	CID var_list ARROW prog_stmt { $$ = new_three(nCASE, new_sval(nCID, $1), $2, $4);};
 var_list:
 	LPAR var_list1 RPAR { $$ = $2; }
 	| {$$ = NULL;};
 var_list1:
-	ID more_var_list1 { $$ = new_var_list($1, $2);};
+	ID more_var_list1 { $$ = new_two(nVAR_LIST, new_sval(nID, $1), $2);};
 more_var_list1:
-	COMMA ID more_var_list1 { $$ = new_var_list($2, $3);}
+	COMMA ID more_var_list1 { $$ = new_two(nVAR_LIST, new_sval(nID, $2), $3);}
 	| {$$ = NULL;};
 
 								/* Expressions */
