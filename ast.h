@@ -1,4 +1,6 @@
 #ifndef AST_H
+#define AST_H
+
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -14,7 +16,7 @@ typedef enum {
 	
 	nCONS_DECLARATIONS, nTYPE_LIST, nTYPE, nNOT, nCMP, nDECLARATIONS, nCONS_DECL, 
 
-	nFUN_BODY, nPROG_STMTS, nIF, nWH, nRE, nAS, nPR, nBL, nCA, nLOCATION, nCASE_LIST, 
+	nFUN_BODY, nPROG_STMTS, nIF, nWH, nRE, nAS, nPR, nCA, nLOCATION, nCASE_LIST, 
 
 	nADD, nSUB, nMUL, nDIV, nOR, nAND, nINT_TERM, nINT_EXPR, nARGUMENTS, nCASE,
 
@@ -22,18 +24,15 @@ typedef enum {
 
 	nIVAL, nRVAL, nBVAL, nID, nCID, nCVAL, nBASIC_DECLARATION, nDATA_DECLARATION,
 
-	nVAR_LIST, nEQ, nLT, nGT, nLE, nGE, nSIZE
+	nVAR_LIST, nEQ, nLT, nGT, nLE, nGE, nSIZE, nPROG
 }Nodetype;
 
-struct ast{
-	Nodetype nodetype;
-};
-
+// Parse Tree Containers
 struct ast_one{
 	Nodetype nodetype;
 	struct ast *a;
 };
-struct ast_two{ 
+struct ast{ 
 	Nodetype nodetype;
 	struct ast *l;
 	struct ast *r;
@@ -43,13 +42,6 @@ struct ast_three{
 	struct ast *l;
 	struct ast *m;
 	struct ast *r;
-};
-struct ast_four{
-	Nodetype nodetype;
-	struct ast *l;
-	struct ast *m;
-	struct ast *r;
-	struct ast *s;
 };
 
 struct ast_sval{
@@ -73,16 +65,41 @@ struct ast_cval{
 	char c;
 };
 
-struct ast *new_one( Nodetype t, struct ast *a);
-struct ast *new_two( Nodetype t, struct ast *l, struct ast *r);
-struct ast *new_three( Nodetype t, struct ast *l, struct ast *m, struct ast *r);
-struct ast *new_four( Nodetype t, struct ast *l, struct ast *m, struct ast *r, struct ast *s);
+// AST Nodes
+struct var{
+	Nodetype nodetype;
+	int type;
+	char *id;
+	struct ast *array_dimensions;
+};
+struct fun{
+	Nodetype nodetype;
+	int type;
+	char *id;
+	struct ast *param_list;
+	struct ast *fun_block;
+};
+struct data{
+	Nodetype nodetype;
+	char *id;
+	struct ast *cons_declarations;
+};
 
-struct ast *new_sval(Nodetype n, char *s);
+
+struct ast *new_one(Nodetype n, struct ast *a);
+struct ast *new_ast(Nodetype n, struct ast *l, struct ast *r);
+struct ast *new_three(Nodetype n, struct ast *l, struct ast *m, struct ast *r);
+struct ast *new_sval(Nodetype n, char *a);
 struct ast *new_ival(Nodetype n, int i);
 struct ast *new_rval(Nodetype n, double d);
 struct ast *new_bval(Nodetype n, bool b);
 struct ast *new_cval(Nodetype n, char c);
+
+struct ast *new_function(Nodetype n, struct ast *id, struct ast *param_list, struct ast *type, struct ast *fun_block);
+
+struct ast *new_data(char *id, struct ast *cons_declarations);
+struct ast *new_stmt(Nodetype n, struct ast *l, struct ast *m, struct ast *r);
+struct ast *new_var_declaration(struct ast *var_specs, struct ast  *type);
 
 void free_ast(struct ast *a);
 void print_ast(struct ast *a);

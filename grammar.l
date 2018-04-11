@@ -22,7 +22,6 @@ identifier		({alpha}({alpha}|{digit})*)
 ("/*")		{ int i = multicomment(); 
 			  if (i) printf("Hit EOF in a comment\n");	}
 "\n"		{ charcount = 1; linecount++; }
-[ \t|" "]	{ charcount++;		}
 
 "+"		{ return ADD; 		}
 "-"		{ return SUB; 		}
@@ -38,6 +37,7 @@ identifier		({alpha}({alpha}|{digit})*)
 ">"		{ return GT; 		}
 "=<"		{ return LE; 		}
 ">="		{ return GE; 		}
+"|"		{ return SLASH; 	}
 
 ":="		{ return ASSIGN; 	}
 "("		{ return LPAR; 		}
@@ -46,7 +46,6 @@ identifier		({alpha}({alpha}|{digit})*)
 "}"		{ return CRPAR; 	}
 "["		{ return SLPAR; 	}
 "]"		{ return SRPAR; 	}
-'|'		{ return SLASH; 	}
 
 ":"		{ return COLON; 	}
 ";"		{ return SEMICOLON;	}
@@ -78,7 +77,7 @@ identifier		({alpha}({alpha}|{digit})*)
 
 "false"			{ return BVAL;  }
 "true"			{ return BVAL;  }
-"#"[{digit}{alpha}]*	{ return CID;   }
+"#"{identifier}+	{ return CID;   }
 {identifier}		{ return ID;    }
 {digit}+"."{digit}+	{ return RVAL;  }
 {digit}+		{ return IVAL;  }

@@ -1,4 +1,4 @@
-var x:int;
+var x, e:int;
 var b:bool;
 var a[100]:int;
 var A[3][3]:real;
