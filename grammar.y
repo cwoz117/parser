@@ -72,7 +72,7 @@ more_var_specs:
 	COMMA var_spec more_var_specs { $$ = new_ast(nVAR_SPECS, $2, $3);}
 	| {$$ = NULL;};
 var_spec:
-	ID array_dimensions { $$ = new_ast(nVAR_SPEC, new_sval(nID, $1), $2); };
+	ID array_dimensions {$$ = new_ast(nVAR_SPEC, new_sval(nID, $1), $2); };
 array_dimensions:
 	SLPAR expr SRPAR array_dimensions { $$ = new_ast(nARRAY_DIMENSIONS, $2, $4);}
 	|{ $$ = NULL;};
@@ -115,7 +115,7 @@ more_cons_decl:
 	SLASH cons_decl more_cons_decl { $$ = new_ast(nCONS_DECLARATIONS, $2, $3);}
 	| {$$ = NULL;};
 cons_decl:
-	CID OF type_list { $$ = new_ast(nCONS_DECL, new_sval(nCID, $1), $3);}
+	CID OF type_list { $$ = new_ast(nCONS_DECL, new_sval(nCID,$1), $3);}
 	| CID { $$ = new_sval(nCID, $1);};
 type_list:
 	type more_type { $$ = new_ast(nTYPE_LIST, $1, $2); };
@@ -227,6 +227,7 @@ void yyerror(char *a){
 
 int main(){
 	yyparse();
+	printf("\nprog\n");
 	print_ast(parse_tree);
 	return 0;
 };

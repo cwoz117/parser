@@ -75,15 +75,15 @@ identifier		({alpha}({alpha}|{digit})*)
 "fun"		{ return FUN; 		}
 "return"	{ return RETURN; 	}
 
-"false"			{ return BVAL;  }
-"true"			{ return BVAL;  }
-"#"{identifier}+	{ return CID;   }
-{identifier}		{ return ID;    }
-{digit}+"."{digit}+	{ return RVAL;  }
-{digit}+		{ return IVAL;  }
-{quote}{char}{quote}	{ return CVAL;  }
-{quote}'\n'{quote}	{ return CVAL;  }
-{quote}'\t'{quote}	{ return CVAL;  }
+"false"			{ yylval.bval = false;  return BVAL;  }
+"true"			{ yylval.bval = true;   return BVAL;  }
+"#"{identifier}+	{ yylval.sval = strdup(yytext); return CID;   }
+{identifier}		{ yylval.sval = strdup(yytext); return ID;    }
+{digit}+"."{digit}+	{ yylval.rval = atof(yytext); return RVAL;  }
+{digit}+		{ yylval.ival = atoi(yytext); return IVAL;  }
+{quote}{char}{quote}	{ yylval.cval = yytext[0]; return CVAL;  }
+{quote}'\n'{quote}	{ yylval.cval = yytext[0]; return CVAL;  }
+{quote}'\t'{quote}	{ yylval.cval = yytext[0]; return CVAL;  }
 
 %%
 
