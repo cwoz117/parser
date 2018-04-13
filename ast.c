@@ -156,6 +156,25 @@ void print_tab(int tab){
 		i--;
 	};
 };
+void print_type(int type){
+	switch(type){
+	case(thINT):
+		printf("INT");
+		break;
+	case(thBOOL):
+		printf("BOOL");
+		break;
+	case(thID):
+		printf("ID");
+		break;
+	case(thREAL):
+		printf("REAL");
+		break;
+	case(thCHAR):
+		printf("CHAR");
+		break;
+	};
+};
 void print_ast(struct ast *a){
 	static int tabcount = 0;
 	if (a){
@@ -182,6 +201,8 @@ void print_ast(struct ast *a){
 			print_ast(a->r);
 			break;
 		case(nTYPE):
+			print_type(((struct ast_ival *)a)->i);
+			break;
 		case(nIVAL):
 			printf("%d", ((struct ast_ival *)a)->i);
 			break;
@@ -203,13 +224,17 @@ void print_ast(struct ast *a){
 			print_tab(tabcount);
 			printf("Var: %s", ((struct var *)a)->id);
 			print_ast(((struct var *)a)->array_dimensions);
-			printf(":%d\n", ((struct var *)a)->type);
+			printf(":");
+			print_type(((struct var *)a)->type);
+			printf("\n");
 			break;
 		case(nFUN_DECLARATION):
 			print_tab(tabcount);
 			printf("Fun: %s(", ((struct fun *)a)->id);
 			print_ast(((struct fun *)a)->param_list);
-			printf("):%d\n", ((struct fun *)a)->type);
+			printf("):");
+			print_type(((struct fun *)a)->type);
+			printf("\n");
 			tabcount++;
 			print_ast(((struct fun *)a)->fun_block);
 			tabcount--;
@@ -218,7 +243,7 @@ void print_ast(struct ast *a){
 			printf("%s", ((struct ast_sval *)(((struct ast_three *)a)->l))->s);
 			print_ast(((struct ast_three *)a)->m);
 			printf(":");
-			printf("%d", ((struct ast_ival *)((struct ast_three *)a)->r)->i);
+			print_type(((struct ast_ival *)((struct ast_three *)a)->r)->i);
 			break;
 		case(nBASIC_ARRAY_DIMENSION):
 			printf("[]");

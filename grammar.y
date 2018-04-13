@@ -77,11 +77,11 @@ array_dimensions:
 	SLPAR expr SRPAR array_dimensions { $$ = new_ast(nARRAY_DIMENSIONS, $2, $4);}
 	|{ $$ = NULL;};
 type:
-	INT 	{ $$ = new_ival(nTYPE, INT); }
-	| REAL 	{ $$ = new_ival(nTYPE, REAL); }
-	| BOOL 	{ $$ = new_ival(nTYPE, BOOL); }
-	| CHAR 	{ $$ = new_ival(nTYPE, CHAR); }
-	| ID 	{ $$ = new_ival(nTYPE, ID); };
+	INT 	{ $$ = new_ival(nTYPE, thINT); }
+	| REAL 	{ $$ = new_ival(nTYPE, thREAL); }
+	| BOOL 	{ $$ = new_ival(nTYPE, thBOOL); }
+	| CHAR 	{ $$ = new_ival(nTYPE, thCHAR); }
+	| ID 	{ $$ = new_ival(nTYPE, thID); };
 
 								/* FUNCTIONS */
 

@@ -27,6 +27,10 @@ typedef enum {
 	nVAR_LIST, nEQ, nLT, nGT, nLE, nGE, nSIZE, nPROG
 }Nodetype;
 
+typedef enum{
+	thINT, thREAL, thBOOL, thCHAR, thID
+}typeHelper;
+
 // Parse Tree Containers
 struct ast_one{
 	Nodetype nodetype;
