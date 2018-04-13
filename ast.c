@@ -74,8 +74,6 @@ struct ast *new_var_declaration(struct ast *var_specs, struct ast *type){
 	vars->r = new_var_declaration(var_specs->r, type);
 	return vars;
 };
-
-
 struct ast *new_function(Nodetype n, struct ast *id, struct ast *param_list, 
 						 struct ast *type, struct ast *fun_block){
 	struct fun *f = mal_node(sizeof(struct fun), nFUN_DECLARATION);
@@ -86,16 +84,12 @@ struct ast *new_function(Nodetype n, struct ast *id, struct ast *param_list,
 	f->fun_block = fun_block;
 	return (struct ast *)f;
 };
-
-
 struct ast *new_data(char *id, struct ast *cons_declarations){
 	struct data *d = mal_node(sizeof(struct data), nDATA_DECLARATION);
 	d->id = id;
 	d->cons_declarations = cons_declarations;
 	return (struct ast *)d;
 };
-
-
 struct ast *new_stmt(Nodetype n, struct ast *l, struct ast *m, struct ast *r){
 	struct ast_three *s = mal_node(sizeof(struct ast_three), n);
 	s->l = l;
@@ -104,10 +98,56 @@ struct ast *new_stmt(Nodetype n, struct ast *l, struct ast *m, struct ast *r){
 	return (struct ast *)s;
 };
 
-// IN THIS BOX BITCHEZ
-void free_ast(struct ast *a){
-	
-};
+void free_ast(struct ast *a){	
+	switch(a->nodetype){
+	case(nIVAL):
+	case(nBVAL):
+	case(nRVAL):
+	case(nID):
+	case(nCID):
+		free(a);
+		break;
+	case(nINT_FACTOR_SUB):
+	case(nFLOAT):
+	case(nFLOOR):
+	case(nCEIL):
+	case(nNOT):				//1
+		free(((struct ast_one *)a)->a);
+		free(a);
+		break;
+	case(nVAR_DECLARATION):
+		free(((struct var *)a)->array_dimensions);
+		free(a);
+		break;
+	case(nFUN_DECLARATION):
+		free(((struct fun *)a)->param_list);
+		free(((struct fun *)a)->fun_block);
+		free(a);
+		break;
+	case(nDATA_DECLARATION):
+		free(((struct data *)a)->cons_declarations);
+		free(a);
+		break;
+	case(nBASIC_DECLARATION):	//3
+	case(nIF):
+	case(nWH):
+	case(nRE):
+	case(nAS):
+	case(nPR):
+	case(nBLOCK):
+	case(nCASE):
+		free(((struct ast_three *)a)->l);
+		free(((struct ast_three *)a)->m);
+		free(((struct ast_three *)a)->r);
+		free(a);
+		break;
+	default:					// 2
+		free_ast(a->l);
+		free_ast(a->r);
+		free(a);
+		break;
+	};
+}
 
 void print_tab(int tab){
 	int i = tab;
@@ -120,8 +160,6 @@ void print_ast(struct ast *a){
 	static int tabcount = 0;
 	if (a){
 		switch(a->nodetype){
-		
-			
 		case(nPROG):
 			tabcount ++;
 			print_ast(a->l);
@@ -130,6 +168,7 @@ void print_ast(struct ast *a){
 			break;
 		case(nTYPE_LIST):
 		case(nVAR_LIST):
+		case(nARGUMENTS):
 		case(nPARAMETERS):
 			print_ast(a->l);
 			if (a->r)
@@ -149,6 +188,15 @@ void print_ast(struct ast *a){
 		case(nID):
 		case(nCID):
 			printf("%s", ((struct ast_sval *)a)->s);
+			break;
+		case(nRVAL):
+			printf("%d", ((struct ast_rval *)a)->d);
+			break;
+		case(nBVAL):
+			printf("%d", ((struct ast_bval *)a)->b);
+			break;
+		case(nCVAL):
+			printf("%c", ((struct ast_cval *)a)->c);
 			break;
 		
 		case(nVAR_DECLARATION): // Var: x:int
@@ -196,7 +244,6 @@ void print_ast(struct ast *a){
 			print_ast(((struct data *)a)->cons_declarations);
 			tabcount--;
 			break;
-		
 		
 		case(nPROG_STMTS):
 			print_tab(tabcount);
@@ -264,44 +311,109 @@ void print_ast(struct ast *a){
 			print_ast(((struct ast_three *)a)->r);
 			break;
 
-
 		case(nOR):
-
+			printf("(");
+			print_ast(a->l);
+			printf(" or ");
+			print_ast(a->r);
+			printf(")");
 			break;
 		case(nAND):
-
+			printf("(");
+			print_ast(a->l);
+			printf(" and ");
+			print_ast(a->r);
+			printf(")");
 			break;
 		case(nNOT):
-
+			printf("not (");
+			print_ast(((struct ast_one *)a)->a);
+			printf(")");
 			break;
 		case(nADD):
-
+			printf("(");
+			print_ast(a->l);
+			printf(" + ");
+			print_ast(a->r);
+			printf(")");
 			break;
 		case(nSUB):
-
+			printf("(");
+			print_ast(a->l);
+			printf(" - ");
+			print_ast(a->r);
+			printf(")");
 			break;
 		case(nMUL):
-
+			printf("(");
+			print_ast(a->l);
+			printf(" * ");
+			print_ast(a->r);
+			printf(")");
 			break;
 		case(nDIV):
-
+			printf("(");
+			print_ast(a->l);
+			printf(" / ");
+			print_ast(a->r);
+			printf(")");
 			break;
 		case(nEQ):
-
+			print_ast(a->l);
+			printf(" == ");
+			print_ast(a->r);
 			break;
 		case(nLT):
-
+			print_ast(a->l);
+			printf(" < ");
+			print_ast(a->r);
 			break;
 		case(nGT):
-
+			print_ast(a->l);
+			printf(" > ");
+			print_ast(a->r);
 			break;
 		case(nLE):
-
+			print_ast(a->l);
+			printf(" =< ");
+			print_ast(a->r);
 			break;
 		case(nGE):
-
+			print_ast(a->l);
+			printf(" >= ");
+			print_ast(a->r);
 			break;
 
+		case(nSIZE):
+			printf("SIZE(");
+			print_ast(a->l);
+			print_ast(a->r);
+			printf(")");
+			break;
+		case(nFLOAT):
+			printf("FLOAT(");
+			print_ast(((struct ast_one *)a)->a);
+			printf(")");
+			break;
+		case(nFLOOR):
+			printf("FLOOR(");
+			print_ast(((struct ast_one *)a)->a);
+			printf(")");
+			break;
+		case(nCEIL):
+			printf("CEIL(");
+			print_ast(((struct ast_one *)a)->a);
+			printf(")");
+			break;
+		case(nINT_FACTOR_CID):
+		case(nINT_FACTOR_ID):
+			print_ast(a->l);
+			if (a->r){
+				printf("(");
+				print_ast(a->r);
+				printf(")");
+			}
+			break;
 
 		default:
 			print_ast(a->l);
@@ -309,4 +421,4 @@ void print_ast(struct ast *a){
 			break;
 		};
 	}
-};
+}
