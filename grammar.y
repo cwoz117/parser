@@ -51,9 +51,9 @@ struct ast * parse_tree = NULL;
 								/* INITIAL SETUP*/
 
 prog:
-	block  {parse_tree = $$;};
+	block  {$$ = new_one(nPROG, $1); parse_tree = $$;};
 block:
-	declarations program_body { $$ = new_ast(nPROG, $1, $2);};
+	declarations program_body { $$ = new_ast(nBLOCK, $1, $2);};
 
 								/* DECLARATIONS */
 
@@ -140,7 +140,7 @@ prog_stmt:
 	| READ location 			{ $$ = new_stmt(nRE, $2, NULL, NULL);}
 	| location ASSIGN expr 			{ $$ = new_stmt(nAS, $1, $3, NULL);}
 	| PRINT expr 				{ $$ = new_stmt(nPR, $2, NULL, NULL);}
-	| CLPAR block CRPAR 			{ $$ = new_stmt(nBLOCK, $2, NULL, NULL);}
+	| CLPAR block CRPAR 			{ $$ = $2;}
 	| CASE expr OF CLPAR case_list CRPAR 	{ $$ = new_stmt(nCA, $2, $5, NULL);};
 location:
 	ID array_dimensions { $$ = new_ast(nLOCATION, new_sval(nID, $1), $2);};
@@ -227,7 +227,6 @@ void yyerror(char *a){
 
 int main(){
 	yyparse();
-	printf("\nprog\n");
 	print_ast(parse_tree);
 	return 0;
 };

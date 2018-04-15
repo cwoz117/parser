@@ -174,4 +174,11 @@ struct iprog {
 	struct array_description *arrays;
 	struct istmt *body;
 };
+
+
+struct iprog *semantic_check(struct ast *a);
+
+
+
+
 #endif

@@ -100,7 +100,6 @@ struct ast *new_bval(Nodetype n, bool b);
 struct ast *new_cval(Nodetype n, char c);
 
 struct ast *new_function(Nodetype n, struct ast *id, struct ast *param_list, struct ast *type, struct ast *fun_block);
-
 struct ast *new_data(char *id, struct ast *cons_declarations);
 struct ast *new_stmt(Nodetype n, struct ast *l, struct ast *m, struct ast *r);
 struct ast *new_var_declaration(struct ast *var_specs, struct ast  *type);

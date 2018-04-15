@@ -180,10 +180,18 @@ void print_ast(struct ast *a){
 	if (a){
 		switch(a->nodetype){
 		case(nPROG):
+			printf("\nProg");
+			print_ast(((struct ast_one *)a)->a);
+			printf("\n");
+			break;
+		case(nBLOCK):
 			tabcount ++;
+			printf(" {\n");
 			print_ast(a->l);
 			print_ast(a->r);
 			tabcount --;
+			print_tab(tabcount);
+			printf("}");
 			break;
 		case(nTYPE_LIST):
 		case(nVAR_LIST):
@@ -277,12 +285,6 @@ void print_ast(struct ast *a){
 			if (a->r){
 				print_ast(a->r);
 			};
-			break;
-		case(nBLOCK):
-			printf("{\n");
-			print_ast(((struct ast_three *)a)->l);
-			print_tab(tabcount);
-			printf("}");
 			break;
 		case(nCA):
 			printf("CASE ");
@@ -447,3 +449,4 @@ void print_ast(struct ast *a){
 		};
 	}
 }
+
