@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "ast.h"
+#include "symbol_table/symbol_table.h"
 
 struct ast * parse_tree = NULL;
 %}
@@ -227,6 +228,6 @@ void yyerror(char *a){
 
 int main(){
 	yyparse();
-	print_ast(parse_tree);
+	print_ir(parse_tree);
 	return 0;
 };
