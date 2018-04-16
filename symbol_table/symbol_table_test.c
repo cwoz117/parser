@@ -4,25 +4,30 @@
 
 int main(int argc, char *args[]){
 	struct table *t = new_table();
+
 	char *a = malloc(sizeof(char)*6);
 	char *b = malloc(sizeof(char)*5);
 	a= "hello";
 	b= "Daka";
-
+	
+	print_table(t);
 
 	// Inserting a Record
-	insert_symbol(t, a, 0);
+	struct record *r = new_var_record(a, 'i', 0, 4);
+	add_symbol(t, r);
 	print_table(t);
+
 
 	// Adding a Scope
 	add_scope(&t);
-	insert_symbol(t, b, 2);
+	struct record *v = new_var_record(b, 'i', 1, 8);
+	add_symbol(t, v);
 	print_table(t);
 
 	// Lookup a record
-	struct record r = lookup(t, "hello");
-	struct record s = lookup(t, "Daka");
-	printf("r = %d, s = %d\n", r.type, s.type);
+	struct record *d = lookup(t, "hello");
+	struct record *e = lookup(t, "Daka");
+	printf("d = %s, e = %s\n", d->id, e->id);
 
 	// Deleting a Scope
 	delete_scope(&t);
@@ -30,6 +35,5 @@ int main(int argc, char *args[]){
 	
 	// Freeing the table
 	free_table(t);
-
 	return 0;
 }
