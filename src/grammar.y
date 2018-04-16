@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "ast.h"
-#include "symbol_table.h"
 #include "ir.h"
 
 struct ast * parse_tree = NULL;
