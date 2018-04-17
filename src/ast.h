@@ -74,6 +74,7 @@ struct var{
 	Nodetype nodetype;
 	int type;
 	char *id;
+	int num_dimensions;
 	struct ast *array_dimensions;
 };
 struct fun{
@@ -106,6 +107,6 @@ struct ast *new_var_declaration(struct ast *var_specs, struct ast  *type);
 
 void free_ast(struct ast *a);
 void print_ast(struct ast *a);
-
+int count(struct ast *a);
 
 #endif

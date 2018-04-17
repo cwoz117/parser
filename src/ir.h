@@ -1,7 +1,9 @@
 #ifndef IR_H
 #define IR_H
+
 #include "ast.h"
 #include "ir.h"
+#include "symbol_table.h"
 #include <stdbool.h>
 
 struct iexpr;
@@ -20,58 +22,59 @@ typedef enum{
 
 struct istmt{
 	StmtType type;	
+	struct istmt *next;
 };
 		struct iassign{
 			StmtType type;
+			struct istmt *next;
 			int level;
 			int offset;
 			struct iexpr *array_indices;
 			struct iexpr *expressions;
-			struct istmt *next;
 		};
 		struct iwhile{
 			StmtType type;
+			struct iexpr *next;
 			struct iexpr *condition;
 			struct istmt *expressions;
-			struct iexpr *next;
 		};
 		struct icond{
 			StmtType type;
+			struct istmt *next;
 			struct iexpr *condition;
 			struct istmt *cond_true;
 			struct istmt *cond_else;
-			struct istmt *next;
 		};
 		struct icase{
 			StmtType type;
+			struct istmt *next;
 			struct iexpr *expr_acted_on; // case --> L <-- of #NIL => L:= #NIL | #cons(x,xs) => L := xs;
 			struct constructor_description *constructors;
-			struct istmt *next;
 		};
 		struct iread{
 			StmtType type; // bool, int, char, float are all done in here
+			struct istmt *next;
 			int level;
 			int offset;
 			struct array_description *indices;
-			struct istmt *next;
 		};
 		struct iprint{
 			StmtType type; // bool, int, char, float are all done in here
-			struct iexpr *value;
 			struct istmt *next;
+			struct iexpr *value;
 		};
 		struct ireturn{
 			StmtType type;
-			struct iexpr *value;
 			struct istmt *next;
+			struct iexpr *value;
 		};
 		struct iblock{
 			StmtType type;
+			struct istmt *next;
 			struct ifbody *functions;
 			int num_local_vars;
 			struct array_description *arrays;
 			struct istmt *body;
-			struct istmt *next;
 		};
 
 

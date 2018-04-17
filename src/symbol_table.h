@@ -1,4 +1,5 @@
-#ifndef SYMBOL_TABLE
+#ifndef SYMBOL_TABLE_H
+#define SYMBOL_TABLE_H
 
 #include "ast.h"
 
@@ -23,18 +24,18 @@ struct record{
 			char *id;
 			int datatype;
 			int arraydims;
-			int space_requirement;
 		};
 		struct arg_record{ //Used in functions, maybe progs for input args too.. prolly not implemented
 			SymType type;
-			struct record *next;
+			struct arg_record *next;
 			char *id;
 			int datatype;
 			int arraydims;
 		};
 		struct fun_record{
 			SymType type;
-			struct record *next;		
+			struct record *next;
+			int returntype;
 			char *id;
 			struct arg_record *args;
 		};
@@ -46,26 +47,20 @@ struct record{
 		struct con_record{
 			SymType type;
 			struct record *next;
-			char *id;
-			struct arg_record *arg_types;
-			char *datatype;
+			char *con_name;
+			struct arg_record *argument_types;
+			char *user_defined_datatype;
 		};
 
 
 struct table * new_table();
-void add_symbol(struct table *t, struct record *r);
+
+void add_symbol(struct table *t, struct ast *a);
 int add_scope(struct table **t);
 int delete_scope(struct table **t);
 struct record *lookup(struct table *t, char *name);
 
 void print_table(struct table *t);
 void free_table(struct table *t);
-
-
-struct record *new_var_record(char *id, int datatype, int arraydims, int space_requirement);
-struct record *new_arg_record(char *id, int datatype, int arraydims);
-struct record *new_fun_record(char *id,  struct arg_record *args);
-struct record *new_con_record(char *cid, struct arg_record *arg_types, char *datatype);
-
 
 #endif

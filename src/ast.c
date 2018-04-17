@@ -57,11 +57,16 @@ struct ast *new_cval(Nodetype n, char c){
 	return (struct ast *)a;
 };
 
+int count(struct ast *a){
+	if (a)
+		return 1 + count(a->r);
+};
 
 struct ast *make_vars(struct ast *var_spec, struct ast *type){
 	struct var *v = mal_node(sizeof(struct var), nVAR_DECLARATION);
 	v->type = ((struct ast_ival *)type)->i;
 	v->id = ((struct ast_sval *)(var_spec->l))->s;
+	v->num_dimensions = count(var_spec->r);
 	v->array_dimensions = var_spec->r;
 	
 	return (struct ast *)v;
