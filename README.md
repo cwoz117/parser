@@ -6,7 +6,7 @@ This program is designed to pretty-print an Abstract Syntax Tree for Assignment 
 
 1. Get the source code (dl/git)
 ```
-[user@vagrant]$ git clone https://github.com/cwoz117
+[user@vagrant]$ git clone https://github.com/cwoz117/parser.git
 [user@vagrant]$ cd parser/
 [user@vagrant parser]$
 ```
